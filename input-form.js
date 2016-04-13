@@ -5,11 +5,15 @@ var http = require('http'),
     fs = require('fs'),
     forms = require('forms'),
     GeoJSON = require('geojson'),
+    jsonfile = require('jsonfile'),
     jsontemplate = require('./json-template');
 
 var fields = forms.fields,
     validators = forms.validators,
     widgets = forms.widgets;
+
+var file = 'test.geojson'
+jsonfile.spaces = 4;
 
 // template for the example page
 var template = jsontemplate.Template(
@@ -43,13 +47,13 @@ http.createServer(function (req, res) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.write('<h1>Success!</h1>');
             var jsonContent = GeoJSON.parse(form.data, {Point: ['lat', 'lng']}) ;
-            fs.writeFile("test.geojson", JSON.stringify(jsonContent), function(err) {
-                if(err) {
-                    return console.log(err);
-                }
+            jsonfile.writeFile(file, jsonContent, function (err) {
+              if(err) {
+                      return console.log(err);
+                  }
+                  console.log("The file was saved!");
 
-                console.log("The file was saved!");
-            });
+            })
             res.write('<pre>' + JSON.stringify(jsonContent) + '</pre>')
             res.end('<pre>' + util.inspect(form.data) + '</pre>');
         },
@@ -67,4 +71,3 @@ http.createServer(function (req, res) {
 }).listen(8080);
 
 util.puts('Server running at http://127.0.0.1:8080/');
-
